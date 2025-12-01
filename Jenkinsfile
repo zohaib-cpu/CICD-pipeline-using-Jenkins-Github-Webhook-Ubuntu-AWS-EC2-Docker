@@ -1,4 +1,4 @@
-{"id":"52731","variant":"standard","title":"Corrected Jenkinsfile"}
+
 pipeline {
     agent any
 
