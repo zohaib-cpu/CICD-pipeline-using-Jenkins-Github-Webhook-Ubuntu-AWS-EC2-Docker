@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -10,7 +9,7 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repo') {
+        stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/zohaib-cpu/CICD-pipeline-using-Jenkins-Github-Webhook-Ubuntu-AWS-EC2-Docker.git'
             }
@@ -18,30 +17,32 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
         stage('Stop & Remove Previous Container') {
             steps {
-                sh '''
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
-                '''
+                sh """
+                if [ \$(docker ps -aq -f name=${CONTAINER_NAME}) ]; then
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
+                fi
+                """
             }
         }
 
-        stage('Docker Container Run') {
+        stage('Run Docker Container') {
             steps {
-                sh "docker run -d -p ${PORT}:${PORT} --name $CONTAINER_NAME $IMAGE_NAME"
+                sh "docker run -d -p ${PORT}:${PORT} --name ${CONTAINER_NAME} ${IMAGE_NAME}"
             }
         }
 
         stage('Send Email Notification') {
             steps {
                 emailext(
-                    subject: "NestJs App Deployed Successfully on EC2!",
-                    body: "Your NestJs app has been deployed successfully!\n\nLive URL: http://13.60.97.114:${PORT}/",
+                    subject: "NestJS App Deployed Successfully on EC2!",
+                    body: "Your NestJS app has been deployed successfully!\n\nLive URL: http://13.60.97.114:${PORT}/",
                     to: "${EMAIL}"
                 )
             }
